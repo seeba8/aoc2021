@@ -5,7 +5,7 @@ pub fn solve() {
     println!("Day 2 part 1: {}", position.0 * position.1);
     let instructions: Vec<AimInstruction> = instructions.into_iter().map(|i| i.into()).collect();
     let position = instructions.as_slice().follow();
-    println!("Day 2 part 1: {}", position.0 * position.1);
+    println!("Day 2 part 2: {}", position.0 * position.1);
 }
 
 #[derive(PartialEq, Debug)]
