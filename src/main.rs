@@ -5,6 +5,9 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+#[allow(dead_code)]
+mod day6;
+mod day6_fast;
 fn main() {
     let start = Instant::now();
     day1::solve();
@@ -12,5 +15,7 @@ fn main() {
     day3::solve();
     day4::solve();
     day5::solve();
+    //day6::solve();
+    day6_fast::solve();
     println!("Elapsed time: {}ms", start.elapsed().as_millis());
 }
