@@ -1,5 +1,5 @@
 pub fn solve() {
-    let input = std::fs::read_to_string("resources/day3.txt").unwrap();
+    let input = std::fs::read_to_string("resources/day03.txt").unwrap();
     let input: Input = input.as_str().into();
     println!(
         "Day 3 part 1: {}",

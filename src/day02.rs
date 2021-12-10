@@ -1,5 +1,5 @@
 pub fn solve() {
-    let input = std::fs::read_to_string("./resources/day2.txt").unwrap();
+    let input = std::fs::read_to_string("./resources/day02.txt").unwrap();
     let instructions = parse_input(&input);
     let position = instructions.as_slice().follow();
     println!("Day 2 part 1: {}", position.0 * position.1);

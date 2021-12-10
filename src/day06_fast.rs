@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 pub fn solve() {
-    let input = std::fs::read_to_string("resources/day6.txt").unwrap();
+    let input = std::fs::read_to_string("resources/day06.txt").unwrap();
     let mut school: School = input.parse().unwrap();
     school.nth(79);
     println!("Day 6 part 1: {}", school.len());

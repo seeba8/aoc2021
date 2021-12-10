@@ -1,29 +1,29 @@
 use std::time::Instant;
 
-mod day1;
-mod day2;
-mod day3;
-mod day4;
-mod day5;
+mod day01;
+mod day02;
+mod day03;
+mod day04;
+mod day05;
 #[allow(dead_code)]
-mod day6;
-mod day6_fast;
-mod day7;
-mod day8;
-mod day9;
+mod day06;
+mod day06_fast;
+mod day07;
+mod day08;
+mod day09;
 mod day10;
 fn main() {
     let start = Instant::now();
-    day1::solve();
-    day2::solve();
-    day3::solve();
-    day4::solve();
-    day5::solve();
+    day01::solve();
+    day02::solve();
+    day03::solve();
+    day04::solve();
+    day05::solve();
     //day6::solve();
-    day6_fast::solve();
-    day7::solve();
-    day8::solve();
-    day9::solve();
+    day06_fast::solve();
+    day07::solve();
+    day08::solve();
+    day09::solve();
     day10::solve();
     println!("Elapsed time: {}ms", start.elapsed().as_millis());
 }

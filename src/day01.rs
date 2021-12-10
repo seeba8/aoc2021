@@ -1,5 +1,5 @@
 pub fn solve() {
-    let input: Vec<usize> = std::fs::read_to_string("./resources/day1.txt")
+    let input: Vec<usize> = std::fs::read_to_string("./resources/day01.txt")
         .unwrap()
         .lines()
         .map(|l| l.parse().unwrap())
