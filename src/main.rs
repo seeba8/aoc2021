@@ -1,6 +1,5 @@
 use std::time::Instant;
 
-
 mod day1;
 mod day2;
 mod day3;
@@ -12,6 +11,7 @@ mod day6_fast;
 mod day7;
 mod day8;
 mod day9;
+mod day10;
 fn main() {
     let start = Instant::now();
     day1::solve();
@@ -24,5 +24,6 @@ fn main() {
     day7::solve();
     day8::solve();
     day9::solve();
+    day10::solve();
     println!("Elapsed time: {}ms", start.elapsed().as_millis());
 }

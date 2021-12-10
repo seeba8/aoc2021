@@ -34,8 +34,8 @@ impl Cave {
 
     fn get_low_point_indices(&self) -> Vec<usize> {
         let mut low_points = Vec::new();
-        for x in 0isize..(self.width as isize) {
-            for y in 0isize..(self.height as isize) {
+        for x in 0..(self.width as isize) {
+            for y in 0..(self.height as isize) {
                 let height = self.get(x, y).unwrap();
                 if self
                     .get_neighbours(x, y)
@@ -150,8 +150,6 @@ impl FromStr for Cave {
 
 #[cfg(test)]
 mod tests {
-    use itertools::Itertools;
-
     use super::*;
     #[test]
     fn it_parses_input() {
