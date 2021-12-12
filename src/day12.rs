@@ -83,24 +83,24 @@ pub struct Caves {
 }
 
 impl Caves {
-    fn find_paths_start_to_end(&mut self) -> HashSet<Vec<Cave>> {
+    fn find_paths_start_to_end(&mut self) -> Vec<Vec<Cave>> {
         self.find_paths(&Cave::new("start"), &Cave::new("end"), false)
     }
 
-    fn find_paths_start_to_end_with_extra_time(&mut self) -> HashSet<Vec<Cave>> {
+    fn find_paths_start_to_end_with_extra_time(&mut self) -> Vec<Vec<Cave>> {
         self.find_paths(&Cave::new("start"), &Cave::new("end"), true)
     }
 
-    fn find_paths(&mut self, from: &Cave, to: &Cave, extra_time: bool) -> HashSet<Vec<Cave>> {
+    fn find_paths(&mut self, from: &Cave, to: &Cave, extra_time: bool) -> Vec<Vec<Cave>> {
         if from == to {
-            let mut res = HashSet::new();
-            res.insert(vec![from.clone()]);
+            let mut res = Vec::new();
+            res.push(vec![from.clone()]);
             return res;
         }
         if from.remember_visit {
             self.visited.insert(from.clone());
         }
-        let mut paths = HashSet::new();
+        let mut paths = Vec::new();
         let next_caves: Vec<Cave> = self
             .edges
             .iter()
@@ -120,7 +120,7 @@ impl Caves {
             for mut path in next_cave_paths {
                 let mut new_path = vec![from.clone()];
                 new_path.append(&mut path);
-                paths.insert(new_path);
+                paths.push(new_path);
             }
         }
         paths
