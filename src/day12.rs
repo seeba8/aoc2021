@@ -93,9 +93,7 @@ impl Caves {
 
     fn find_paths(&mut self, from: &Cave, to: &Cave, extra_time: bool) -> Vec<Vec<Cave>> {
         if from == to {
-            let mut res = Vec::new();
-            res.push(vec![from.clone()]);
-            return res;
+            return vec![vec![from.clone()]];
         }
         if from.remember_visit {
             self.visited.insert(from.clone());
