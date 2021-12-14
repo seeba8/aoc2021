@@ -11,9 +11,8 @@ pub fn solve() {
     let mut polymers: Polymers = input.parse().unwrap();
     polymers.nth(9);
     println!("Day 14 part 1: {}", polymers.get_max_minus_min());
-    let mut polymers: Polymers = input.parse().unwrap();
-    polymers.nth(39);
-    println!("Day 14 part 2: {}", polymers.get_max_minus_min());
+    let polymers: Polymers = input.parse().unwrap();
+    println!("Day 14 part 2: {}", polymers.moritz_idea(40));
 }
 
 pub struct Polymers {
@@ -25,6 +24,32 @@ impl Polymers {
     fn get_max_minus_min(&self) -> usize {
         let counts = self.elements.iter().counts();
         counts.values().max().unwrap() - counts.values().min().unwrap()
+    }
+
+    fn moritz_idea(&self, iterations: usize) -> usize {
+        let mut pair_counts: HashMap<(char, char), usize> = HashMap::new();
+        let mut char_counts: HashMap<char, usize> = HashMap::new();
+        for c in 'A'..='Z' {
+            char_counts.insert(c, 0);
+        }
+        for i in 0..self.elements.len() - 1{
+            pair_counts.entry((self.elements[i], self.elements[i+1])).and_modify(|v| *v += 1).or_insert(1);
+            char_counts.entry(self.elements[i]).and_modify(|v| *v += 1);
+        }
+        char_counts.entry(*self.elements.last().unwrap()).and_modify(|v| *v += 1);
+
+        for _ in 0..iterations {
+            let mut result = HashMap::new();
+            for ((a, b), count) in pair_counts.iter() {
+                if let Some(inserted) = self.pair_insertions.get(&(*a, *b)) {
+                    result.entry((*a, *inserted)).and_modify(|v| *v += *count).or_insert(*count);
+                    result.entry((*inserted, *b)).and_modify(|v| *v += *count).or_insert(*count);
+                    char_counts.entry(*inserted).and_modify(|v| *v += *count);
+                }
+            }
+            pair_counts = result;
+        }
+        char_counts.values().max().unwrap_or(&0) - char_counts.values().filter(|v| **v > 0).min().unwrap_or(&0)
     }
 }
 
@@ -155,7 +180,6 @@ mod tests {
         assert_eq!(1588, polymers.get_max_minus_min());
     }
 
-    #[ignore = "too slow"]
     #[test]
     fn it_solves_example2() {
         let input = "NNCB
@@ -177,8 +201,7 @@ mod tests {
         CC -> N
         CN -> C";
 
-        let mut polymers: Polymers = input.parse().unwrap();
-        polymers.nth(39);
-        assert_eq!(2188189693529, polymers.get_max_minus_min());
+        let polymers: Polymers = input.parse().unwrap();
+        assert_eq!(2188189693529, polymers.moritz_idea(40));
     }
 }
