@@ -1,6 +1,7 @@
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     fmt::{Debug, Display},
+    hash::Hash,
     str::FromStr,
 };
 
@@ -11,20 +12,36 @@ pub fn solve() {
     ))
     .unwrap();
     let mut caves: Caves = input.parse().unwrap();
-    println!("Day 12 part 1: {}", caves.find_paths_start_to_end().len());
+    let neighbours = Caves::get_neighbours(&input);
+    println!("Day 12 part 1: {}", caves.find_paths_start_to_end(&neighbours));
     let mut caves: Caves = input.parse().unwrap();
     println!(
         "Day 12 part 2: {}",
-        caves.find_paths_start_to_end_with_extra_time().len()
+        caves.find_paths_start_to_end_with_extra_time(&neighbours)
     );
 }
 
-#[derive(PartialEq, Hash, Eq, Clone)]
+#[derive(Clone)]
 pub struct Cave {
     name: String,
     is_small: bool,
     remember_visit: bool,
     can_visit_again: bool,
+    visited: bool,
+}
+
+impl Hash for Cave {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
+
+impl Eq for Cave {}
+
+impl PartialEq for Cave {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
 }
 impl Cave {
     fn new(name: &str) -> Cave {
@@ -39,6 +56,7 @@ impl Cave {
             is_small,
             remember_visit: is_small,
             can_visit_again,
+            visited: false,
         }
     }
 }
@@ -78,48 +96,60 @@ impl FromStr for Edge {
 
 #[derive(Clone)]
 pub struct Caves {
-    edges: Vec<Edge>,
-    visited: HashSet<Cave>,
+    visited: HashSet< Cave>,
 }
 
 impl Caves {
-    fn find_paths_start_to_end(&mut self) -> Vec<Vec<Cave>> {
-        self.find_paths(&Cave::new("start"), &Cave::new("end"), false)
+
+    fn get_neighbours(s: &str) ->  HashMap<Cave, HashSet<Cave>> {
+        let mut edges: Vec<Edge> = s
+            .trim()
+            .lines()
+            .map(|line| Edge::from_str(line))
+            .collect::<Result<Vec<Edge>, String>>().unwrap();
+        // we want bi-directional edges
+        for edge in edges.clone() {
+            edges.push(Edge(edge.1, edge.0));
+        }
+        let mut neighbours: HashMap<Cave, HashSet<Cave>> = HashMap::new();
+        for edge in edges {
+            neighbours
+                .entry(edge.0.clone())
+                .and_modify(|entry| {
+                    entry.insert(edge.1.clone());
+                })
+                .or_insert_with(HashSet::new)
+                .insert(edge.1);
+        }
+
+        neighbours
+    }
+    fn find_paths_start_to_end(&mut self, neighbours: &HashMap<Cave, HashSet<Cave>>) -> usize {
+        self.find_paths(&Cave::new("start"), &Cave::new("end"), false, neighbours)
     }
 
-    fn find_paths_start_to_end_with_extra_time(&mut self) -> Vec<Vec<Cave>> {
-        self.find_paths(&Cave::new("start"), &Cave::new("end"), true)
+    fn find_paths_start_to_end_with_extra_time(&mut self, neighbours: &HashMap<Cave, HashSet<Cave>>) -> usize {
+        self.find_paths(&Cave::new("start"), &Cave::new("end"), true, neighbours)
     }
 
-    fn find_paths(&mut self, from: &Cave, to: &Cave, extra_time: bool) -> Vec<Vec<Cave>> {
+    fn find_paths(&mut self, from: &Cave, to: &Cave, extra_time: bool, neighbours: &HashMap<Cave, HashSet<Cave>>) -> usize {
         if from == to {
-            return vec![vec![from.clone()]];
+            return 1;
         }
         if from.remember_visit {
-            self.visited.insert(from.clone());
+           self.visited.insert(from.clone());
         }
-        let mut paths = Vec::new();
-        let next_caves: Vec<Cave> = self
-            .edges
+        let mut paths = 0;
+        for next_cave in neighbours[from]
             .iter()
-            .filter(|edge| {
-                edge.0 == *from
-                    && (!self.visited.contains(&edge.1) || (extra_time && edge.1.can_visit_again))
-            })
-            .map(|edge| edge.1.clone())
-            .collect();
-        for next_cave in next_caves {
+            .filter(|cave| (!self.visited.contains(cave) || (extra_time && cave.can_visit_again)))
+        {
             let mut cloned_self = self.clone();
-            let next_cave_paths = if self.visited.contains(&next_cave) {
-                cloned_self.find_paths(&next_cave, to, false)
+            paths += if self.visited.contains(next_cave) {
+                cloned_self.find_paths( next_cave, to, false, neighbours)
             } else {
-                cloned_self.find_paths(&next_cave, to, extra_time)
+                cloned_self.find_paths( next_cave, to, extra_time, neighbours)
             };
-            for mut path in next_cave_paths {
-                let mut new_path = vec![from.clone()];
-                new_path.append(&mut path);
-                paths.push(new_path);
-            }
         }
         paths
     }
@@ -138,8 +168,17 @@ impl FromStr for Caves {
         for edge in edges.clone() {
             edges.push(Edge(edge.1, edge.0));
         }
+        let mut neighbours: HashMap<Cave, HashSet<Cave>> = HashMap::new();
+        for edge in edges {
+            neighbours
+                .entry(edge.0.clone())
+                .and_modify(|entry| {
+                    entry.insert(edge.1.clone());
+                })
+                .or_insert_with(HashSet::new)
+                .insert(edge.1);
+        }
         Ok(Caves {
-            edges,
             visited: HashSet::new(),
         })
     }
@@ -158,20 +197,6 @@ mod tests {
         assert_ne!(cave1, cave3);
     }
 
-    #[test]
-    fn it_parses_caves() {
-        let input = "start-A
-        start-b
-        A-c
-        A-b
-        b-d
-        A-end
-        b-end";
-        let caves: Result<Caves, _> = input.parse();
-        assert!(caves.is_ok());
-        let caves = caves.unwrap();
-        assert_eq!(14, caves.edges.len());
-    }
 
     #[test]
     fn it_finds_paths() {
@@ -183,10 +208,11 @@ mod tests {
         A-end
         b-end";
         let mut caves: Caves = input.parse().unwrap();
-        let paths = caves.find_paths_start_to_end();
-        assert_eq!(10, paths.len());
+        let neighbours = Caves::get_neighbours(&input);
+        let paths = caves.find_paths_start_to_end(&neighbours);
+        assert_eq!(10, paths);
 
-        let mut caves: Caves = "dc-end
+        let input = "dc-end
         HN-start
         start-kj
         dc-start
@@ -195,12 +221,12 @@ mod tests {
         HN-end
         kj-sa
         kj-HN
-        kj-dc"
-            .parse()
-            .unwrap();
-        assert_eq!(19, caves.find_paths_start_to_end().len());
+        kj-dc";
+        let mut caves: Caves = input.parse().unwrap();
+        let neighbours = Caves::get_neighbours(&input);
+        assert_eq!(19, caves.find_paths_start_to_end(&neighbours));
 
-        let mut caves: Caves = "fs-end
+        let input = "fs-end
         he-DX
         fs-he
         start-DX
@@ -217,10 +243,12 @@ mod tests {
         he-WI
         zg-he
         pj-fs
-        start-RW"
+        start-RW";
+        let mut caves: Caves = input
             .parse()
             .unwrap();
-        assert_eq!(226, caves.find_paths_start_to_end().len());
+        let neighbours = Caves::get_neighbours(&input);
+        assert_eq!(226, caves.find_paths_start_to_end(&neighbours));
     }
 
     #[test]
@@ -233,10 +261,11 @@ mod tests {
         A-end
         b-end";
         let mut caves: Caves = input.parse().unwrap();
-        let paths = caves.find_paths_start_to_end_with_extra_time();
-        assert_eq!(36, paths.len());
+        let neighbours = Caves::get_neighbours(&input);
+        let paths = caves.find_paths_start_to_end_with_extra_time(&neighbours);
+        assert_eq!(36, paths);
 
-        let mut caves: Caves = "dc-end
+        let input = "dc-end
         HN-start
         start-kj
         dc-start
@@ -245,12 +274,12 @@ mod tests {
         HN-end
         kj-sa
         kj-HN
-        kj-dc"
-            .parse()
-            .unwrap();
-        assert_eq!(103, caves.find_paths_start_to_end_with_extra_time().len());
+        kj-dc";
+        let mut caves: Caves = input.parse().unwrap();
+        let neighbours = Caves::get_neighbours(&input);
+        assert_eq!(103, caves.find_paths_start_to_end_with_extra_time(&neighbours));
 
-        let mut caves: Caves = "fs-end
+        let input = "fs-end
         he-DX
         fs-he
         start-DX
@@ -267,9 +296,11 @@ mod tests {
         he-WI
         zg-he
         pj-fs
-        start-RW"
+        start-RW";
+        let mut caves: Caves = input
             .parse()
             .unwrap();
-        assert_eq!(3509, caves.find_paths_start_to_end_with_extra_time().len());
+        let neighbours = Caves::get_neighbours(&input);
+        assert_eq!(3509, caves.find_paths_start_to_end_with_extra_time(&neighbours));
     }
 }
