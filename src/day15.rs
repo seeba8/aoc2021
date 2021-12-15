@@ -7,17 +7,15 @@ pub fn solve() {
     let cave: Cave = input.parse().unwrap();
     let end = cave.risk.len() - 1;
     println!("Day 15 part 1: {}", cave.find_path(0, end));
-    let cave = Cave::from_tile(&cave,5);
-    println!("got cave");
+    let cave = Cave::from_tile(&cave, 5);
     let end = cave.risk.len() - 1;
-    println!("end: {}", end);
     println!("Day 15 part 2: {}", cave.find_path(0, end));
-
 }
 
-use std::{collections::HashMap, str::FromStr};
-
-use itertools::Itertools;
+use std::{
+    collections::{HashMap, HashSet},
+    str::FromStr,
+};
 
 pub struct Cave {
     risk: Vec<usize>,
@@ -25,33 +23,23 @@ pub struct Cave {
 }
 impl Cave {
     fn find_path(&self, start: usize, end: usize) -> usize {
-        let mut queue: Vec<usize> = (0..self.risk.len()).collect();
-        let mut distances: Vec<usize> = vec![usize::MAX; self.risk.len()];
-        let mut previous: Vec<Option<usize>> = vec![None; self.risk.len()];
-        distances[start] = 0;
-        while let Some((index, u)) = queue
-            .iter()
-            .enumerate()
-            .sorted_by_key(|(_, v)| distances[**v])
-            .next()
-        {
-            let u = u.clone();
-            queue.swap_remove(index);
+        let mut distances: HashMap<usize, usize> = HashMap::new();
+        let mut visited: HashSet<usize> = HashSet::new();
+        distances.insert(start, 0);
+        while !distances.is_empty() {
+            let (&u, &dist) = distances.iter().min_by_key(|(_, v)| **v).unwrap();
+            visited.insert(u);
+            distances.remove(&u);
             if u == end {
-                // let mut prev = previous[u];
-                // while let Some(p) = prev {
-                //     println!("{}", self.risk[p]);
-                //     prev = previous[p];
-                // }
-                return distances[u];
+                return dist;
             }
             if let Some(neighbours) = self.neighbours.get(&u) {
                 for neighbour in neighbours {
-                    if queue.contains(neighbour) {
-                        let alternative = distances[u] + self.risk[*neighbour];
-                        if alternative < distances[*neighbour] {
-                            distances[*neighbour] = alternative;
-                            previous[*neighbour] = Some(u);
+                    if !visited.contains(neighbour) {
+                        let alternative = dist + self.risk[*neighbour];
+                        if alternative < *distances.get(neighbour).unwrap_or(&(usize::max as usize))
+                        {
+                            distances.insert(*neighbour, alternative);
                         }
                     }
                 }
@@ -97,7 +85,7 @@ impl Cave {
             }
         }
         let neighbours = HashMap::with_capacity(risk.len());
-        let mut cave = Cave{risk, neighbours};
+        let mut cave = Cave { risk, neighbours };
         cave.set_neighbours();
         cave
     }
@@ -162,9 +150,14 @@ pub mod tests {
 
     #[test]
     fn it_tiles() {
-        let cave = Cave{risk: vec![8], neighbours: HashMap::new()};
-        let cave2 = Cave::from_tile(&cave,5);
-        let expected = vec![8,9,1,2,3,9,1,2,3,4,1,2,3,4,5,2,3,4,5,6,3,4,5,6,7];
+        let cave = Cave {
+            risk: vec![8],
+            neighbours: HashMap::new(),
+        };
+        let cave2 = Cave::from_tile(&cave, 5);
+        let expected = vec![
+            8, 9, 1, 2, 3, 9, 1, 2, 3, 4, 1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7,
+        ];
         assert_eq!(expected, cave2.risk);
     }
 
@@ -181,9 +174,7 @@ pub mod tests {
         1293138521
         2311944581";
         let cave: Cave = input.parse().unwrap();
-        let cave = Cave::from_tile(&cave,5);
+        let cave = Cave::from_tile(&cave, 5);
         assert_eq!(315, cave.find_path(0, cave.risk.len() - 1));
     }
-
-
 }
