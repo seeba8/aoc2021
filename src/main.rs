@@ -17,6 +17,7 @@ mod day11;
 mod day12;
 mod day13;
 mod day14;
+mod day15;
 
 fn main() {
     let start = Instant::now();
@@ -35,5 +36,6 @@ fn main() {
     day12::solve();
     day13::solve();
     day14::solve();
+    day15::solve();
     println!("Elapsed time: {}ms", start.elapsed().as_millis());
 }
