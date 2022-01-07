@@ -16,7 +16,7 @@ pub fn solve() {
     println!("Day 22 part 1: {}", reactor.count_enabled_cubes());
     let mut reactor = FastReactor::new(instructions);
     reactor.apply_instructions();
-    println!("Day 22 part 1: {}", reactor.count_enabled_cubes());
+    println!("Day 22 part 2: {}", reactor.count_enabled_cubes());
 
 }
 struct Reactor {

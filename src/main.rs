@@ -27,6 +27,7 @@ mod day21;
 mod day21_part2;
 mod day22;
 mod day23;
+mod day23_part2;
 
 fn main() {
     let start = Instant::now();
