@@ -1,5 +1,7 @@
-#![allow(dead_code)]
+
 use std::time::Instant;
+#[macro_use]
+extern crate lazy_static;
 
 mod day01;
 mod day02;
@@ -26,9 +28,10 @@ mod day20;
 mod day21;
 mod day21_part2;
 mod day22;
-mod day23;
-mod day23_part2;
 
+#[allow(dead_code)]
+mod day23;
+mod day23_fast;
 fn main() {
     let start = Instant::now();
     day01::solve();
@@ -55,6 +58,6 @@ fn main() {
     day21::solve();
     day21_part2::solve();
     day22::solve();
-    day23::solve();
+    day23_fast::solve();
     println!("Elapsed time: {}ms", start.elapsed().as_millis());
 }

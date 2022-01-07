@@ -214,18 +214,18 @@ impl Scanner {
         None
     }
 
-    fn translated(&self, relative_position: &RelativePosition) -> Scanner {
-        Scanner {
-            name: self.name.clone(),
-            other_scanners: HashMap::new(),
-            beacons: self
-                .beacons
-                .iter()
-                .cloned()
-                .map(|p| p.get_variant(relative_position.variant) + relative_position.point.clone())
-                .collect(),
-        }
-    }
+    // fn translated(&self, relative_position: &RelativePosition) -> Scanner {
+    //     Scanner {
+    //         name: self.name.clone(),
+    //         other_scanners: HashMap::new(),
+    //         beacons: self
+    //             .beacons
+    //             .iter()
+    //             .cloned()
+    //             .map(|p| p.get_variant(relative_position.variant) + relative_position.point.clone())
+    //             .collect(),
+    //     }
+    // }
 }
 
 pub struct Scanners {
@@ -521,14 +521,14 @@ mod tests {
         assert_eq!(Point::new(-20, -1133, 1061), position_scanner4);
     }
 
-    #[test]
-    fn it_translates() {
-        let mut scanner0 = get_scanner0();
-        let scanner1 = get_scanner1();
-        let relative_position = scanner0.get_relative_position_of(&scanner1, 12).unwrap();
-        let translated_scanner1 = scanner1.translated(&relative_position);
-        println!("{:#?}", translated_scanner1);
-    }
+    // #[test]
+    // fn it_translates() {
+    //     let mut scanner0 = get_scanner0();
+    //     let scanner1 = get_scanner1();
+    //     let relative_position = scanner0.get_relative_position_of(&scanner1, 12).unwrap();
+    //     let translated_scanner1 = scanner1.translated(&relative_position);
+    //     println!("{:#?}", translated_scanner1);
+    // }
 
     #[test]
     fn it_calculates_relative_positions() {
