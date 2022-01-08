@@ -24,10 +24,10 @@ pub fn solve() {
 #[derive(Clone)]
 pub struct Cave {
     name: String,
-    is_small: bool,
+    //is_small: bool,
     remember_visit: bool,
     can_visit_again: bool,
-    visited: bool,
+    //visited: bool,
 }
 
 impl Hash for Cave {
@@ -53,10 +53,10 @@ impl Cave {
         let can_visit_again = !vec!["start", "end"].contains(&name);
         Cave {
             name: name.to_owned(),
-            is_small,
+            //is_small,
             remember_visit: is_small,
             can_visit_again,
-            visited: false,
+            //visited: false,
         }
     }
 }
@@ -105,7 +105,7 @@ impl Caves {
         let mut edges: Vec<Edge> = s
             .trim()
             .lines()
-            .map(|line| Edge::from_str(line))
+            .map(Edge::from_str)
             .collect::<Result<Vec<Edge>, String>>().unwrap();
         // we want bi-directional edges
         for edge in edges.clone() {
@@ -162,7 +162,7 @@ impl FromStr for Caves {
         let mut edges: Vec<Edge> = s
             .trim()
             .lines()
-            .map(|line| Edge::from_str(line))
+            .map(Edge::from_str)
             .collect::<Result<Vec<Edge>, String>>()?;
         // we want bi-directional edges
         for edge in edges.clone() {
