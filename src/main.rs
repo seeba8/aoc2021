@@ -27,13 +27,13 @@ mod day20;
 mod day21;
 mod day21_part2;
 mod day22;
-
 #[allow(dead_code)]
 mod day23;
 mod day23_fast;
 mod day24;
 mod day24_generated;
 mod day24_interpreted;
+mod day25;
 fn main() {
     let start = Instant::now();
     day01::solve();
@@ -62,5 +62,6 @@ fn main() {
     day22::solve();
     day23_fast::solve();
     day24::solve();
+    day25::solve();
     println!("Elapsed time: {}ms", start.elapsed().as_millis());
 }
